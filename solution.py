@@ -1,16 +1,27 @@
 import pandas as pd
+import numpy as np
 
-def predicao(arquivo)
+def predicao(arquivo):
   dados = pd.read_csv(arquivo)
   area = dados["area_util_m2"].to_list()
   quartos = dados["quantidade_quartos"].to_list()
   preco = dados["preco_venda"].to_list()
-  print(f"$area, $quartos, $preco")
+
+  Y = np.array(preco)
+
+  X = np.column_stack((np.ones(len(area)), area, quartos))
+  Xt = np.transpose(X)
+
+  XtX = np.dot(Xt, X)
+  XtXR = np.linalg.inv(XtX)
+  XtY = np.dot(Xt, Y)
+
+  beta = np.dot(XtXR, XtY)
+
+  #aquela balela ali em cima é uma DESCONSTRUÇÃO do B = (Xt * X)-¹ * Xt * Y, devido a
+  #sintaxe não dar certo usando np.dot(np.dot(np.linalg.inv)), então eu tive que 
+  #desconstruir a conta e fazer uma parte de cada vez
+  return beta
   
-predicao()
-#B0 é o valor inicial
-#Este valor de B0 + B1*A e B2*Q 
-#B1 e B2 seria o valor de cada m2 na área e o valor de cada quarto?
-#?
-#?
-#?
+resultado = predicao("imoveis_lar_perfeito.csv")
+print(resultado)
